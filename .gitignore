@@ -1,0 +1,11 @@
+node_modules/
+vendor/
+
+.env
+
+dist/
+.vite/
+.phpunit.result.cache
+
+.DS_Store
+Thumbs.db
