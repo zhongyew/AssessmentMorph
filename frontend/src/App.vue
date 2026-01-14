@@ -9,11 +9,11 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <style>
-/* 这里的样式是全局生效的 */
+
 body {
   margin: 0;
   padding: 0;
-  background-color: #0a0a0a; /* 给整个网页一个深色背景 */
+  background-color: #0a0a0a; 
   display: flex;
   place-items: center;
   min-width: 320px;

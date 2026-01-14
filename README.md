@@ -61,6 +61,10 @@ backend/app/Http/Controllers/GrammarController.php: Manages API requests and dat
 backend/routes/api.php: Defines API endpoints for checking text and managing history.
 
 📝 Usage Notes
+For testing usage, the user is given 3 tokens to test the function; it is able to top up for free by clicking the button on the right-hand side.
+
 Token System: Users start with a default balance. If tokens are insufficient, the "Correction" button will disable and prompt a top-up.
 
 Validation: The system automatically detects non-English inputs (e.g., Chinese characters) and alerts the user immediately.
+
+The user can save the correction if it is important.

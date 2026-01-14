@@ -2,40 +2,39 @@
 import { ref, computed, onMounted, watch } from '../../node_modules/vue'
 import axios from 'axios'
 
-// --- 基础状态控制 ---
+
 const pageState = ref(0) 
 const inputText = ref('')
 const correctedText = ref('')
 const loading = ref(false)
 const userTokens = ref(3);
 const projects = [
-  { id: 'grammar', title: 'AI Grammar Correction', icon: '✍️', desc: '基于 Laravel + Ollama 的本地 AI 纠错工具' },
-  // { id: 'data', title: '数据看板', icon: '📊', desc: '实时可视化分析界面' },
-  // { id: 'creative', title: '创意工坊', icon: '🎨', desc: '展示我的设计与灵感' },
+  { id: 'grammar', title: 'A Grammar Correction Tool', icon: '✍️', desc: 'A basic grammar correction tool that use a free languageTool API' },
+  
 ]
-// 控制充值弹窗显示
+// Control the window
 const showTopUpModal = ref(false)
 const highlightedOriginal = ref('');
-// 定义套餐数据
+// Define the package
 const packages = [
   { id: 1, tokens: 50, price: 25, label: 'Starter Pack' },
   { id: 2, tokens: 100, price: 45, label: 'Pro Pack' },
   { id: 3, tokens: 'Unlimited', price: 200, label: 'Enterprise' }
 ]
 
-// 处理充值逻辑
+// Top up 
 const handleTopUp = (pkg) => {
   if (pkg.tokens === 'Unlimited') {
-    userTokens.value = '∞' // 无限使用标识
+    userTokens.value = '∞' // Infinity
   } else {
-    // 如果之前是无限，先重置为数字再加
+    
     const current = userTokens.value === '∞' ? 0 : Number(userTokens.value)
     userTokens.value = current + pkg.tokens
   }
   alert(`Top up Successful! You purchased: ${pkg.label}`)
-  showTopUpModal.value = false // 关闭弹窗
+  showTopUpModal.value = false 
 }
-// --- 收藏历史相关逻辑 ---
+
 const history = ref([])
 const fetchHistory = async () => {
   const res = await axios.get('http://127.0.0.1:8000/api/history');
@@ -60,7 +59,7 @@ const toggleFavorite = async () => {
 
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/history', {
-      // 重点：存入带高亮标签的文本
+      
       input_text: highlightedOriginal.value, 
       output_result: correctedText.value,
       tokens_used: tokensNeeded,
@@ -87,15 +86,15 @@ onMounted(fetchHistory);
 const handleStart = () => pageState.value = 1
 const enterProject = (id) => { if (id === 'grammar') pageState.value = 2 }
 
-// --- API 调用逻辑 ---
+// --- API Logic ---
 const handleCheck = async () => {
-  // 1. 基础校验：空输入不处理
+  // 1. Verify the space
   if (!inputText.value.trim()) return;
 
-  // 2. 费用预测：计算所需 Token
+  // 2. Token required calculating
   const tokensNeeded = Math.ceil(inputText.value.length / 100);
 
-  // 3. 余额拦截：如果是无限模式则跳过
+  // 3. Inifinity token can skip the verify
   if (userTokens.value !== '∞' && userTokens.value < tokensNeeded) {
     alert(`Insufficient Tokens! Requires ${tokensNeeded} tokens, but you only have ${userTokens.value}.`);
     showTopUpModal.value = true; 
@@ -104,7 +103,7 @@ const handleCheck = async () => {
 
   loading.value = true;
   correctedText.value = ""; 
-  highlightedOriginal.value = ""; // 重置高亮内容
+  highlightedOriginal.value = ""; 
 
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/check', {
@@ -112,22 +111,22 @@ const handleCheck = async () => {
     });
     
     if (response.data.success) {
-      // A. 更新纠正后的文本
+      //  Correct the text
       correctedText.value = response.data.corrected;
       
-      // B. 处理高亮：必须倒序，防止 offset 偏移
+      
       let text = inputText.value;
       const matches = response.data.matches || [];
       
       [...matches].sort((a, b) => b.offset - a.offset).forEach(match => {
         const wrongWord = text.substring(match.offset, match.offset + match.length);
-        // 使用 span 标签包裹错误单词，并注入提示消息
+        // Highligh the wrong word
         const highlightHtml = `<span class="highlight-err" title="${match.message}">${wrongWord}</span>`;
         text = text.substring(0, match.offset) + highlightHtml + text.substring(match.offset + match.length);
       });
       highlightedOriginal.value = text;
 
-      // C. 扣除 Token：仅在成功后执行
+      // Deduct the token needed
       if (userTokens.value !== '∞') {
         userTokens.value -= tokensNeeded;
       }
@@ -147,10 +146,10 @@ const isEnglish = computed(() => {
 
   const nonEnglishRegex = /[^\x00-\xff]/; 
   
-  // 如果文本中包含“非单字节字符”（即中文等），则返回 false
+  // Return false when nonEnglish is detected
   return !nonEnglishRegex.test(inputText.value);
 });
-// 综合判断按钮是否可用
+
 const canSubmit = computed(() => {
   return inputText.value.trim().length > 0 && isEnglish.value && !loading.value;
 });
@@ -284,7 +283,7 @@ const canSubmit = computed(() => {
   min-height: 90vh;
   color: #ffffff;
   position: relative;
-  overflow-y: auto; /* 允许滚动查看历史 */
+  overflow-y: auto;
   padding: 20px;
 }
 
@@ -338,7 +337,6 @@ textarea {
 
 .controls { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
 
-/* 结果框 & 收藏按钮 */
 .result-box {
   background: rgba(66, 184, 131, 0.1);
   padding: 1.5rem;
@@ -348,9 +346,9 @@ textarea {
   margin-bottom: 30px;
 }
 .result-box p {
-  white-space: pre-wrap;   /* 保留段落换行 */
-  word-wrap: break-word;   /* 强制长单词换行 */
-  line-height: 1.6;        /* 增加行高，方便阅读段落 */
+  white-space: pre-wrap;   
+  word-wrap: break-word;   
+  line-height: 1.6;       
 }
 
 .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -387,7 +385,7 @@ textarea {
   font-size: 0.8rem;
   margin-top: 5px;
   text-align: left;
-  animation: shake 0.3s; /* 增加抖动反馈 */
+  animation: shake 0.3s;
 }
 
 @keyframes shake {
@@ -396,7 +394,7 @@ textarea {
   75% { transform: translateX(5px); }
 }
 
-/* 禁用按钮的样式 */
+
 .cool-button:disabled {
   background: #333;
   cursor: not-allowed;
@@ -448,11 +446,11 @@ textarea {
   margin: 8px 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  max-height: 100px;        /* 超过 100px 就显示滚动条 */
-  overflow-y: auto;         /* 纵向滚动 */
+  max-height: 100px;        
+  overflow-y: auto;         
   padding-right: 5px;
-  word-break: break-word;   /* 防止长单词撑破布局 */
-  white-space: pre-wrap;    /* 保留段落换行 */
+  word-break: break-word;   
+  white-space: pre-wrap;    
 }
 
 /* 自定义滚动条样式，使其更美观 */
@@ -481,26 +479,25 @@ textarea {
 .history-content p { margin: 4px 0; font-size: 0.9rem; line-height: 1.4; }
 .history-content small { color: #555; font-size: 0.7rem; }
 .token-status-bar {
-  position: fixed;    /* 改为 fixed，使其相对于窗口固定 */
-  top: 30px;          /* 距离顶部距离 */
-  right: 40px;        /* 距离右侧距离 */
-  z-index: 1000;      /* 确保它在所有元素的最上方 */
+  position: fixed;   
+  top: 30px;          
+  right: 40px;        
+  z-index: 1000;      
 }
 
 .token-chip {
-  background: rgba(0, 0, 0, 0.6);         /* 稍微深一点的背景 */
-  backdrop-filter: blur(12px);            /* 模糊效果增加高级感 */
-  padding: 8px 18px;                      /* 稍微缩小一点内边距 */
+  background: rgba(0, 0, 0, 0.6);         
+  backdrop-filter: blur(12px);            
+  padding: 8px 18px;                     
   border-radius: 50px;
   border: 1px solid rgba(66, 184, 131, 0.4);
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); /* 增加阴影使其浮起来 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
 }
 
-/* 鼠标悬停时的微互动（可选，增加面试加分点） */
 .token-chip:hover {
   transform: translateY(-2px);
   border-color: #42b883;
@@ -508,9 +505,9 @@ textarea {
 }
 
 .token-chip .label {
-  font-size: 0.7rem;    /* 稍微缩小文字，突出数字 */
+  font-size: 0.7rem;   
   color: #888;
-  letter-spacing: 1px;  /* 增加字母间距，更有质感 */
+  letter-spacing: 1px; 
 }
 
 .token-chip .value {
@@ -520,39 +517,38 @@ textarea {
   text-shadow: 0 0 10px rgba(66, 184, 131, 0.3);
 }
 
-/* 状态栏按钮 */
+
 .topup-trigger {
-  /* 基础形状设置 */
+ 
   background: #42b883;
   border: none;
   color: white;
-  width: 28px;   /* 稍微调大一点点，更美观 */
+  width: 28px;   
   height: 28px;
   border-radius: 50%;
   cursor: pointer;
   
-  /* 核心：使用 Flex 让内部的 + 号居中 */
+
   display: flex;
-  align-items: center;      /* 垂直居中 */
-  justify-content: center;   /* 水平居中 */
+  align-items: center;      
+  justify-content: center;   
   
-  /* 文字微调 */
-  font-size: 18px;          /* 调整 + 号的大小 */
+
+  font-size: 18px;         
   font-weight: bold;
-  line-height: 1;           /* 强制行高为 1，防止偏移 */
+  line-height: 1;           
   
-  /* 其他效果 */
+
   margin-left: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 10px rgba(66, 184, 131, 0.3);
 }
 
 .topup-trigger:hover {
-  transform: scale(1.1) rotate(90deg); /* 增加一个旋转效果，更有趣 */
-  background: #3da677;
+  transform: scale(1.1) rotate(90deg); 
 }
 
-/* 弹窗遮罩 */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -567,7 +563,7 @@ textarea {
   z-index: 2000;
 }
 
-/* 弹窗主体 */
+
 .topup-modal {
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -581,7 +577,7 @@ textarea {
 .modal-title { color: #42b883; margin-bottom: 10px; font-size: 2rem; }
 .modal-subtitle { color: #888; margin-bottom: 40px; }
 
-/* 套餐网格 */
+
 .package-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
