@@ -44,8 +44,8 @@ public function store(Request $request)
     $request->validate([
         'input_text' => 'required|string',
         'output_result' => 'required|string',
-        'tokens_used' => 'required|integer',
-        'fee' => 'required|numeric'
+        'tokens_used' => 'required|integer'
+        
     ]);
 
     // 2. Deduct the token before create
@@ -53,7 +53,7 @@ public function store(Request $request)
         'input_text' => $request->input_text,
         'output_result' => $request->output_result,
         'tokens_used' => $request->tokens_used, // 这里千万不能写死成 1
-        'fee' => $request->fee,
+        
     ]);
 
     return response()->json(['success' => true]);
