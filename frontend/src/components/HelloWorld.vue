@@ -63,7 +63,7 @@ const toggleFavorite = async () => {
       input_text: highlightedOriginal.value, 
       output_result: correctedText.value,
       tokens_used: tokensNeeded,
-      fee: (tokensNeeded * 0.99).toFixed(2)
+      
     });
 
     if (response.data.success) {
@@ -170,7 +170,7 @@ const canSubmit = computed(() => {
       <div v-if="showTopUpModal" class="modal-overlay" @click.self="showTopUpModal = false">
         <div class="topup-modal">
           <h2 class="modal-title">Top Up Tokens</h2>
-          <p class="modal-subtitle">Select a package to continue your AI journey</p>
+          <p class="modal-subtitle">Select a package to continue your journey</p>
           <div class="package-grid">
             <div v-for="pkg in packages" :key="pkg.id" class="package-card" @click="handleTopUp(pkg)">
               <div class="pkg-label">{{ pkg.label }}</div>
@@ -211,7 +211,7 @@ const canSubmit = computed(() => {
       </div>
 
       <div v-else-if="pageState === 2" key="checker" class="checker-page">
-        <h2 class="section-title">AI Grammar Correction</h2>
+        <h2 class="section-title">Grammar Correction</h2>
         
         <div class="checker-container">
           <textarea 
@@ -430,13 +430,6 @@ textarea {
   border-radius: 4px;
 }
 
-.fee-tag {
-  color: gold;
-  background: rgba(255, 215, 0, 0.1);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
 .history-section {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 20px;
